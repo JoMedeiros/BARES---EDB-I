@@ -13,6 +13,7 @@
 #include <vector>
 
 #include "parser.h"
+#include "infix_to_postfix.h"
 
 std::vector<std::string> expressions;
 
@@ -84,8 +85,10 @@ int main ( /*int argc, char const *argv[]*/ )
 
 	std::cout << "\n>>> Normal exiting...\n";
 
-	std::cout << "\nLista de Tokens:\n";
-	for (Token & t : my_parser.get_tokens())
+	std::cout << "\nLista de Tokens posfixo:\n";
+	std::vector< Token > postfix = infix2posfix( my_parser.get_tokens() );
+
+	for (Token & t : postfix)
 	{
 		std::cout << t.value;
 	}

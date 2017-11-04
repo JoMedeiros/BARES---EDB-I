@@ -91,5 +91,5 @@
 
 >>> Normal exiting...
 
-Lista de Tokens:
--3+4
+Lista de Tokens posfixo:
+-34+
