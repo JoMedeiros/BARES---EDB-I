@@ -15,6 +15,8 @@
 #include "parser.h"
 #include "infix_to_postfix.h"
 
+typedef short int required_int_type;
+
 std::vector<std::string> expressions;
 
 void print_msg( const Parser::ParserResult & result, std::string str )
@@ -49,6 +51,64 @@ void print_msg( const Parser::ParserResult & result, std::string str )
 	std::cout << " " << error_indicator << std::endl;
 }
 
+required_int_type execute_operator( required_int_type term1, required_int_type term2, char op) 
+{
+	required_int_type result = 0;
+	switch( op )
+	{
+		case '+':  
+			result = term1 + term2;
+			break;
+		case '-':
+			result = term1 - term2;
+			break;
+		case '*':
+			result = term1 * term2;
+			break;
+		case '^':
+			result = pow( term1, term2 );
+			break;
+		case '/':
+			if ( term2 == 0 ) throw std::runtime_error(" Division by zero " );                    
+			result = term1 / term2;                    
+			break;
+		case '%':  
+			if ( term2 == 0 ) throw std::runtime_error(" Division by zero " );
+			result = term1 % term2;
+			break;
+	}
+	return result;
+}
+
+required_int_type evaluate_postfix( std::vector<Token> postfix )
+{
+	// Stack of numbers.
+	std::stack< required_int_type > st;
+	// Process each symbol in the postfix experssion.     
+	for( Token & t : postfix )
+	{         
+		if ( is_operand( t ) )         
+		{             
+			// Each operand always goes into the stack. 
+			auto temp = std::stoi(t.value, nullptr);
+			st.push( temp );
+		}
+		else if ( is_operator( t ) )         
+		{
+			// Pops out the two terms of the binary operation...
+			auto term2 = st.top(); st.pop();
+			// Invert the order first!
+			auto term1 = st.top(); st.pop();
+			// ... executes the operation, and...
+			auto r = execute_operator( term1, term2, t.value[0] );             
+			// ... pushes the result back onto the stack.             
+			st.push( r );         
+		}     
+	}     
+	// If everything goes smoothly, the result should be on the top of the stack.     
+	return st.top(); 
+}
+
 int main ( /*int argc, char const *argv[]*/ )
 {
 	/* @TODO	Verificar se o programa foi executado com parâmetros ou stream */
@@ -73,7 +133,19 @@ int main ( /*int argc, char const *argv[]*/ )
 		if ( result.type != Parser::ParserResult::PARSER_OK )
 			print_msg( result, expr );
 		else
+		{
 			std::cout << ">>> Expression SUCCESSFULLY parsed!\n";
+			std::cout << "\nLista de Tokens posfixo:\n";
+			std::vector< Token > postfix = infix2posfix( my_parser.get_tokens() );
+
+			for (Token & t : postfix)
+			{
+				std::cout << t.value;
+			}
+			std::cout << "\n>>>>Resposta: <<<<<<<\n";
+			auto answer = evaluate_postfix(postfix);
+			std::cout << "===" << answer << "===\n\n";
+		}
 
 		 // Recuperar a lista de tokens.
 		auto lista = my_parser.get_tokens();
@@ -84,14 +156,6 @@ int main ( /*int argc, char const *argv[]*/ )
 	}
 
 	std::cout << "\n>>> Normal exiting...\n";
-
-	std::cout << "\nLista de Tokens posfixo:\n";
-	std::vector< Token > postfix = infix2posfix( my_parser.get_tokens() );
-
-	for (Token & t : postfix)
-	{
-		std::cout << t.value;
-	}
 
 	return EXIT_SUCCESS;
 }
