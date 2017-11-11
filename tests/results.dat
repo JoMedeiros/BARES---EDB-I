@@ -1,5 +1,48 @@
 ===============================================================================
+>>> Parsing "2 - - -   - 3"
+>>> Tokens: { <2,OPERAND> <-,OPERATOR> <-3,OPERAND> }
+>>> Expression SUCCESSFULLY parsed!
+
+Lista de Tokens posfixo:
+2-3-
+>>>>Resposta: <<<<<<<
+===5===
+
+===============================================================================
+>>> Parsing "(2 ^ 3))"
+>>> Tokens: { <(,SCOPE> <2,OPERAND> <^,OPERATOR> <3,OPERAND> <),SCOPE> }
+>>> Extraneous symbol after valid expression found at column (7)!
+"(2 ^ 3))"
+        ^ 
+===============================================================================
+>>> Parsing "((2-3*10 - (2^3*5))"
+>>> Tokens: { <(,SCOPE> <(,SCOPE> <2,OPERAND> <-,OPERATOR> <3,OPERAND> <*,OPERATOR> <10,OPERAND> <-,OPERATOR> <(,SCOPE> <2,OPERAND> <^,OPERATOR> <3,OPERAND> <*,OPERATOR> <5,OPERAND> <),SCOPE> <),SCOPE> }
+>>> Unhandled error found!
+"((2-3*10 - (2^3*5))"
+  ^                  
+===============================================================================
+>>> Parsing "123 *  548"
+>>> Tokens: { <123,OPERAND> <*,OPERATOR> <548,OPERAND> }
+>>> Expression SUCCESSFULLY parsed!
+
+Lista de Tokens posfixo:
+123548*
+>>>>Resposta: <<<<<<<
+===67404===
+
+===============================================================================
+>>> Parsing "9 * 5"
+>>> Tokens: { <9,OPERAND> <*,OPERATOR> <5,OPERAND> }
+>>> Expression SUCCESSFULLY parsed!
+
+Lista de Tokens posfixo:
+95*
+>>>>Resposta: <<<<<<<
+===45===
+
+===============================================================================
 >>> Parsing "10"
+>>> Tokens: { <10,OPERAND> }
 >>> Expression SUCCESSFULLY parsed!
 
 Lista de Tokens posfixo:
@@ -7,15 +50,15 @@ Lista de Tokens posfixo:
 >>>>Resposta: <<<<<<<
 ===10===
 
->>> Tokens: { <10,OPERAND> }
 ===============================================================================
 >>> Parsing "12    +    4   8"
+>>> Tokens: { <12,OPERAND> <+,OPERATOR> <4,OPERAND> }
 >>> Extraneous symbol after valid expression found at column (15)!
 "12    +    4   8"
                 ^ 
->>> Tokens: { <12,OPERAND> <+,OPERATOR> <4,OPERAND> }
 ===============================================================================
 >>> Parsing "32767 - 32768 + 3"
+>>> Tokens: { <32767,OPERAND> <-,OPERATOR> <32768,OPERAND> <+,OPERATOR> <3,OPERAND> }
 >>> Expression SUCCESSFULLY parsed!
 
 Lista de Tokens posfixo:
@@ -23,9 +66,9 @@ Lista de Tokens posfixo:
 >>>>Resposta: <<<<<<<
 ===2===
 
->>> Tokens: { <32767,OPERAND> <-,OPERATOR> <32768,OPERAND> <+,OPERATOR> <3,OPERAND> }
 ===============================================================================
 >>> Parsing "5 + -32766"
+>>> Tokens: { <5,OPERAND> <+,OPERATOR> <-32766,OPERAND> }
 >>> Expression SUCCESSFULLY parsed!
 
 Lista de Tokens posfixo:
@@ -33,15 +76,15 @@ Lista de Tokens posfixo:
 >>>>Resposta: <<<<<<<
 ===-32761===
 
->>> Tokens: { <5,OPERAND> <+,OPERATOR> <-32766,OPERAND> }
 ===============================================================================
 >>> Parsing "5 + -32769"
->>> Integer constant out of range beginning at column (4)!
-"5 + -32769"
-     ^      
 >>> Tokens: { <5,OPERAND> <+,OPERATOR> }
+>>> Integer constant out of range beginning at column (5)!
+"5 + -32769"
+      ^     
 ===============================================================================
 >>> Parsing "12 + 3"
+>>> Tokens: { <12,OPERAND> <+,OPERATOR> <3,OPERAND> }
 >>> Expression SUCCESSFULLY parsed!
 
 Lista de Tokens posfixo:
@@ -49,9 +92,9 @@ Lista de Tokens posfixo:
 >>>>Resposta: <<<<<<<
 ===15===
 
->>> Tokens: { <12,OPERAND> <+,OPERATOR> <3,OPERAND> }
 ===============================================================================
 >>> Parsing "3+-5+-6"
+>>> Tokens: { <3,OPERAND> <+,OPERATOR> <-5,OPERAND> <+,OPERATOR> <-6,OPERAND> }
 >>> Expression SUCCESSFULLY parsed!
 
 Lista de Tokens posfixo:
@@ -59,9 +102,9 @@ Lista de Tokens posfixo:
 >>>>Resposta: <<<<<<<
 ===-8===
 
->>> Tokens: { <3,OPERAND> <+,OPERATOR> <-5,OPERAND> <+,OPERATOR> <-6,OPERAND> }
 ===============================================================================
 >>> Parsing "12 + 3     -3 + -34"
+>>> Tokens: { <12,OPERAND> <+,OPERATOR> <3,OPERAND> <-,OPERATOR> <3,OPERAND> <+,OPERATOR> <-34,OPERAND> }
 >>> Expression SUCCESSFULLY parsed!
 
 Lista de Tokens posfixo:
@@ -69,9 +112,9 @@ Lista de Tokens posfixo:
 >>>>Resposta: <<<<<<<
 ===-22===
 
->>> Tokens: { <12,OPERAND> <+,OPERATOR> <3,OPERAND> <-,OPERATOR> <3,OPERAND> <+,OPERATOR> <-34,OPERAND> }
 ===============================================================================
 >>> Parsing "12"
+>>> Tokens: { <12,OPERAND> }
 >>> Expression SUCCESSFULLY parsed!
 
 Lista de Tokens posfixo:
@@ -79,33 +122,27 @@ Lista de Tokens posfixo:
 >>>>Resposta: <<<<<<<
 ===12===
 
->>> Tokens: { <12,OPERAND> }
 ===============================================================================
 >>> Parsing "1.3 * 4"
+>>> Tokens: { <1,OPERAND> }
 >>> Extraneous symbol after valid expression found at column (1)!
 "1.3 * 4"
   ^      
->>> Tokens: { <1,OPERAND> }
 ===============================================================================
 >>> Parsing "a + 4"
+>>> Tokens: { }
 >>> Ill formed integer at column (0)!
 "a + 4"
  ^     
->>> Tokens: { }
 ===============================================================================
 >>> Parsing "       "
+>>> Tokens: { }
 >>> Ill formed integer at column (7)!
 "       "
         ^
->>> Tokens: { }
-===============================================================================
->>> Parsing "123 *  548"
->>> Extraneous symbol after valid expression found at column (4)!
-"123 *  548"
-     ^      
->>> Tokens: { <123,OPERAND> }
 ===============================================================================
 >>> Parsing "2 + ---3"
+>>> Tokens: { <2,OPERAND> <+,OPERATOR> <-3,OPERAND> }
 >>> Expression SUCCESSFULLY parsed!
 
 Lista de Tokens posfixo:
@@ -113,27 +150,39 @@ Lista de Tokens posfixo:
 >>>>Resposta: <<<<<<<
 ===-1===
 
->>> Tokens: { <2,OPERAND> <+,OPERATOR> <-3,OPERAND> }
 ===============================================================================
 >>> Parsing "35 - 3 * (-2 + 5)^2"
->>> Extraneous symbol after valid expression found at column (7)!
-"35 - 3 * (-2 + 5)^2"
-        ^            
->>> Tokens: { <35,OPERAND> <-,OPERATOR> <3,OPERAND> }
+>>> Tokens: { <35,OPERAND> <-,OPERATOR> <3,OPERAND> <*,OPERATOR> <(,SCOPE> <-2,OPERAND> <+,OPERATOR> <5,OPERAND> <),SCOPE> <^,OPERATOR> <2,OPERAND> }
+>>> Expression SUCCESSFULLY parsed!
+
+Lista de Tokens posfixo:
+353-25)2^*-
+>>>>Resposta: <<<<<<<
+===53===
+
 ===============================================================================
 >>> Parsing "54 / 3 ^ (12%5) * 2"
->>> Extraneous symbol after valid expression found at column (3)!
-"54 / 3 ^ (12%5) * 2"
-    ^                
->>> Tokens: { <54,OPERAND> }
+>>> Tokens: { <54,OPERAND> </,OPERATOR> <3,OPERAND> <^,OPERATOR> <(,SCOPE> <12,OPERAND> <%,OPERATOR> <5,OPERAND> <),SCOPE> <*,OPERATOR> <2,OPERAND> }
+>>> Expression SUCCESSFULLY parsed!
+
+Lista de Tokens posfixo:
+543125)^/2*
+>>>>Resposta: <<<<<<<
+===0===
+
 ===============================================================================
 >>> Parsing "((2-3)*10 - (2^3*5))"
->>> Ill formed integer at column (0)!
-"((2-3)*10 - (2^3*5))"
- ^                    
->>> Tokens: { }
+>>> Tokens: { <(,SCOPE> <(,SCOPE> <2,OPERAND> <-,OPERATOR> <3,OPERAND> <),SCOPE> <*,OPERATOR> <10,OPERAND> <-,OPERATOR> <(,SCOPE> <2,OPERAND> <^,OPERATOR> <3,OPERAND> <*,OPERATOR> <5,OPERAND> <),SCOPE> <),SCOPE> }
+>>> Expression SUCCESSFULLY parsed!
+
+Lista de Tokens posfixo:
+23)10*23^5))
+>>>>Resposta: <<<<<<<
+===5===
+
 ===============================================================================
 >>> Parsing "---3 + 4"
+>>> Tokens: { <-3,OPERAND> <+,OPERATOR> <4,OPERAND> }
 >>> Expression SUCCESSFULLY parsed!
 
 Lista de Tokens posfixo:
@@ -141,6 +190,5 @@ Lista de Tokens posfixo:
 >>>>Resposta: <<<<<<<
 ===1===
 
->>> Tokens: { <-3,OPERAND> <+,OPERATOR> <4,OPERAND> }
 
 >>> Normal exiting...

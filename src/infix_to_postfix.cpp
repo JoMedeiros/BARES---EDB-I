@@ -16,6 +16,14 @@ bool is_operator( Token t )
 {
 	return t.type == Token::token_t::OPERATOR;
 }
+bool is_opening_scope( Token t )
+{
+	return t.value[0] == '(';
+}
+bool is_closing_scope( Token t )
+{
+	return t.value[0] == ')';
+}
 enum
 {
 	//DEFAULT_OP,
@@ -76,24 +84,23 @@ infix2posfix (std::vector< Token > token_list)
 		if ( is_operand( *it ) )
 		{
 			postfix.push_back( *it);
-		}/*
-		else if ( is_opening_scope( s ) )
-		{
-			st.push( s ); // goes into the stack, regardless of who is on top.
 		}
-		else if ( is_closing_scope( s ) )
+		else if ( is_opening_scope( *it ) )
+		{
+			st.push( *it ); // goes into the stack, regardless of who is on top.
+		}
+		else if ( is_closing_scope( *it ) )
 		{
 			// Pops out all symbols until we get to his 'brother'
 			while( not st.empty() and not is_opening_scope( st.top() ) )
 			{
 				auto t = st.top(); // the operand on top.
 				st.pop();
-				postfix += t; // All operands on the stack goes to the output string.
+				postfix.push_back( *it ); // All operands on the stack goes to the output string.
 			}
 			// Don't forget to remove the opening scope.
 			st.pop();
 		}
-		*/
 		else if ( is_operator( *it ) )
 		{
 			// top() >= s ??? yes-> goes to output; no-> stay on the stack.

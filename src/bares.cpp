@@ -7,7 +7,6 @@
  * @date	04/11/2017
  *
  */
-
 #include <iostream>
 #include <iomanip>
 #include <vector>
@@ -19,6 +18,12 @@ typedef short int required_int_type;
 
 std::vector<std::string> expressions;
 
+/**
+ * @brief      Print on the std::cout the message corresponding to the result.
+ *
+ * @param[in]  result  The result
+ * @param[in]  str     A string that will be printed along with the error message.
+ */
 void print_msg( const Parser::ParserResult & result, std::string str )
 {
 	std::string error_indicator( str.size()+1, ' ');
@@ -42,6 +47,9 @@ void print_msg( const Parser::ParserResult & result, std::string str )
 		case Parser::ParserResult::INTEGER_OUT_OF_RANGE:
 			std::cout << ">>> Integer constant out of range beginning at column (" << result.at_col << ")!\n";
 			break;
+		case Parser::ParserResult::MISSING_CLOSING_PARENTHESIS:
+			std::cout << ">>> Missing closing parenthesis for opening parenthesis in column (" << result.at_col << ")!\n";
+			break;
 		default:
 			std::cout << ">>> Unhandled error found!\n";
 			break;
@@ -50,10 +58,24 @@ void print_msg( const Parser::ParserResult & result, std::string str )
 	std::cout << "\"" << str << "\"\n";
 	std::cout << " " << error_indicator << std::endl;
 }
-
-required_int_type execute_operator( required_int_type term1, required_int_type term2, char op) 
+/**
+ * @brief      Execute the operation denoted by a char. The operation can be:
+ * + : Sum
+ * - : Subtraction
+ * * : Multiplication
+ * / : Division
+ * % : Modulo
+ * ^ : Exponetiation
+ *
+ * @param[in]  term1  The first term of the operation.
+ * @param[in]  term2  The second term of the operation.
+ * @param[in]  op     The operation.
+ *
+ * @return     The numeric result of the operation.
+ */
+long int execute_operator( required_int_type term1, required_int_type term2, char op) 
 {
-	required_int_type result = 0;
+	long int result = 0;
 	switch( op )
 	{
 		case '+':  
@@ -79,11 +101,17 @@ required_int_type execute_operator( required_int_type term1, required_int_type t
 	}
 	return result;
 }
-
-required_int_type evaluate_postfix( std::vector<Token> postfix )
+/**
+ * @brief      A function that take a expression (vector of Token) in postfix format and calculates the result.
+ *
+ * @param[in]  postfix  The postfix format of a vector of Token (operands and operators).
+ *
+ * @return     A long int value, the result of the expression.
+ */
+long int evaluate_postfix( std::vector<Token> postfix )
 {
 	// Stack of numbers.
-	std::stack< required_int_type > st;
+	std::stack< long int > st;
 	// Process each symbol in the postfix experssion.     
 	for( Token & t : postfix )
 	{         
@@ -103,7 +131,7 @@ required_int_type evaluate_postfix( std::vector<Token> postfix )
 			auto r = execute_operator( term1, term2, t.value[0] );             
 			// ... pushes the result back onto the stack.             
 			st.push( r );         
-		}     
+		}
 	}     
 	// If everything goes smoothly, the result should be on the top of the stack.     
 	return st.top(); 
@@ -129,6 +157,13 @@ int main ( /*int argc, char const *argv[]*/ )
 		// Preparar cabeçalho da saida.
 		std::cout << std::setfill('=') << std::setw(80) << "\n";
 		std::cout << std::setfill(' ') << ">>> Parsing \"" << expr << "\"\n";
+
+		 // Recuperar a lista de tokens.
+		auto lista = my_parser.get_tokens();
+		std::cout << ">>> Tokens: { ";
+		std::copy( lista.begin(), lista.end(),
+				std::ostream_iterator< Token >(std::cout, " ") );
+		std::cout << "}\n";
 		// Se deu pau, imprimir a mensagem adequada.
 		if ( result.type != Parser::ParserResult::PARSER_OK )
 			print_msg( result, expr );
@@ -147,12 +182,7 @@ int main ( /*int argc, char const *argv[]*/ )
 			std::cout << "===" << answer << "===\n\n";
 		}
 
-		 // Recuperar a lista de tokens.
-		auto lista = my_parser.get_tokens();
-		std::cout << ">>> Tokens: { ";
-		std::copy( lista.begin(), lista.end(),
-				std::ostream_iterator< Token >(std::cout, " ") );
-		std::cout << "}\n";
+		
 	}
 
 	std::cout << "\n>>> Normal exiting...\n";

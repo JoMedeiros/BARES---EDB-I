@@ -9,6 +9,12 @@ Parser::terminal_symbol_t  Parser::lexer( char c_ ) const
 	{
 		case '+':  return terminal_symbol_t::TS_PLUS;
 		case '-':  return terminal_symbol_t::TS_MINUS;
+		case '%':  return terminal_symbol_t::TS_MOD;
+		case '/':  return terminal_symbol_t::TS_DIV;
+		case '*':  return terminal_symbol_t::TS_MULT;
+		case '^':  return terminal_symbol_t::TS_POW;
+		case '(':  return terminal_symbol_t::TS_OPEN;
+		case ')':  return terminal_symbol_t::TS_CLOSE;
 		case ' ':  return terminal_symbol_t::TS_WS;
 		case'\t':  return terminal_symbol_t::TS_TAB;
 		case '0':  return terminal_symbol_t::TS_ZERO;
@@ -47,7 +53,7 @@ bool Parser::peek( terminal_symbol_t c_ ) const
 	// Verificar se o código fornecido no argumento corresponde
 	// ao caractere na "ponta da agulha" (apontado pelo iterador).
 	return ( not end_input() and
-			 lexer( *it_curr_symb ) == c_ );
+			lexer( *it_curr_symb ) == c_ );
 }
 
 /// Tries to match the current character to a symbol passed as argument.
@@ -122,29 +128,39 @@ Parser::ParserResult Parser::expression()
 {
 	auto result = term();
 
-	/*
-	while( result.type == ParserResult::PARSER_OK and 
-			( expect( Parser::terminal_symbol_t::TS_MINUS ) or
-			  expect( Parser::terminal_symbol_t::TS_PLUS ) ) )
-	{
-		// Processa outro termo.
-		result = term();
-	}
-	*/
-
 	while( result.type == ParserResult::PARSER_OK )
 	{
-		 if ( expect( Parser::terminal_symbol_t::TS_MINUS ) )
-		 {
-			 // Guarda o token "-" na lista.
-			 token_list.emplace_back( Token( "-", Token::token_t::OPERATOR ) );
-		 }
-		 else if ( expect( Parser::terminal_symbol_t::TS_PLUS ) )
-		 {
-			 // Guarda o token "+" na lista.
-			 token_list.emplace_back( Token( "+", Token::token_t::OPERATOR ) );
-		 }
-		 else break;
+		if ( expect( Parser::terminal_symbol_t::TS_MINUS ) )
+		{
+			// Guarda o token "-" na lista.
+			token_list.emplace_back( Token( "-", Token::token_t::OPERATOR ) );
+		}
+		else if ( expect( Parser::terminal_symbol_t::TS_PLUS ) )
+		{
+			// Guarda o token "+" na lista.
+			token_list.emplace_back( Token( "+", Token::token_t::OPERATOR ) );
+		}
+		else if ( expect( Parser::terminal_symbol_t::TS_MOD ) )
+		{
+			// Guarda o token "+" na lista.
+			token_list.emplace_back( Token( "%", Token::token_t::OPERATOR ) );
+		}
+		else if ( expect( Parser::terminal_symbol_t::TS_DIV ) )
+		{
+			// Guarda o token "+" na lista.
+			token_list.emplace_back( Token( "/", Token::token_t::OPERATOR ) );
+		}
+		else if ( expect( Parser::terminal_symbol_t::TS_MULT ) )
+		{
+			// Guarda o token "+" na lista.
+			token_list.emplace_back( Token( "*", Token::token_t::OPERATOR ) );
+		}
+		else if ( expect( Parser::terminal_symbol_t::TS_POW ) )
+		{
+			// Guarda o token "+" na lista.
+			token_list.emplace_back( Token( "^", Token::token_t::OPERATOR ) );
+		}
+		else break;
 
 		// Processa outro termo.
 		result = term();
@@ -156,7 +172,24 @@ Parser::ParserResult Parser::expression()
  // Produção:   <term> := <integer>;
 Parser::ParserResult Parser::term()
 {
-	skip_ws(); 
+	skip_ws();
+	// Se achar um parêntesis "(" tenta ler uma expressão
+	if ( accept( terminal_symbol_t::TS_OPEN ))
+	{
+		// Guarda a posição do início do parêntesis
+		auto begin_scope = it_curr_symb;
+		// Guarda o token "(" na lista.
+		token_list.emplace_back( Token( "(", Token::token_t::SCOPE ) );
+		auto result = expression();
+		if (result.type == ParserResult::PARSER_OK)
+		{
+			if ( not expect( Parser::terminal_symbol_t::TS_CLOSE ) )
+				return ParserResult( ParserResult::code_t::MISSING_CLOSING_PARENTHESIS, std::distance( expr.begin(), begin_scope ) ) ;
+			token_list.emplace_back( Token( ")", Token::token_t::SCOPE ) );
+		}
+		return result;
+	}
+	// Senão, tenta ler um inteiro
 	return integer();
 }
 
@@ -177,11 +210,14 @@ Parser::ParserResult Parser::integer()
 
 	auto count = 0u;
 
-	while ( accept( terminal_symbol_t::TS_MINUS ) ) ++count;
+	while ( accept( terminal_symbol_t::TS_MINUS ) )
+	{
+		skip_ws();
+		++count;
+	}
 	
 	// Guardar o início do número natural (que vai ser um token).
 	auto begin_token = it_curr_symb;
-	if (count%2 != 0) --begin_token;
 	
 	auto result =  natural_number();
 	// Se veio um número natural correto, vamos tokeniza e salvar.
@@ -210,7 +246,10 @@ Parser::ParserResult Parser::integer()
 		}
 		
 		// Coloca o novo token na nossa lista de tokens.
-		token_list.emplace_back( Token( token_str, Token::token_t::OPERAND ) );
+		if (count%2 != 0)
+			token_list.emplace_back( Token( "-" + token_str, Token::token_t::OPERAND ) );
+		else
+			token_list.emplace_back( Token( token_str, Token::token_t::OPERAND ) );
 	}
 
 	return result; // O resultado de natural_number().
@@ -244,14 +283,6 @@ bool Parser::digit_excl_zero()
 bool Parser::digit()
 {
 	return ( accept( terminal_symbol_t::TS_ZERO ) or digit_excl_zero() ) ? true : false;
-
-/*
-	if ( not accept( terminal_symbol_t::TS_ZERO ) )
-	{
-		return digit_excl_zero();
-	}
-*/
-	return true;
 }
 
 /*!
